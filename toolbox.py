@@ -43,7 +43,7 @@ class Toolbox():
                 print('Não há tarefas para esta data!')
             return api_return
         except AttributeError:
-            print('Nenhuma tarefa foi adicionada!')
+            print('Banco de dados vazio!')
     
     def list_all_to_do(self):
         response = self.request_api(self.url_firebase_json, 'get', None, None, None)
@@ -57,7 +57,7 @@ class Toolbox():
                 if status != 'realizado' and date != None and name != None:
                     print(f"\tData: {date} - Nome: {name}")
         except AttributeError:
-            print('Nenhuma tarefa foi adicionada!')
+            print('Banco de dados vazio!')
     
 
     def processing_data_to_do(self, task):
@@ -83,6 +83,15 @@ class Toolbox():
         else:
             print(f"Ocorreu um erro durante o processo. {response.status_code}")
         return response.status_code
+
+
+    def delete_to_do(self, node):
+        url = self.url_firebase_json.strip('.json')
+        node_delete = node
+        response = self.request_api(f"{url}{node_delete}.json", 'delete', None, None, None)
+        if response.status_code != 200:
+            print('Não foi possível deletar a tarefa.')
+        return response
 
 
     def menu_update_to_do(self, list_date):
@@ -118,6 +127,8 @@ class Toolbox():
                         task_processing = selected_task[2]
                         if edit_option == '1' or edit_option.lower() == 'data':
                             edit_date = input('Digite a nova data (dd-mm-aaaa): ')
+                            if edit_date == 'now':
+                                edit_date = datetime.now().strftime('%d-%m-%Y')
                             processing_node = self.processing_data_to_do(task_processing)
                             update = self.update_to_do(processing_node, edit_date, name_start, task_processing, status_start)
                             if update == 200:
@@ -156,8 +167,12 @@ class Toolbox():
                                 print(f"\nStatus alterado para {edit_status}")
                     
                     elif task_option == '2' or task_option.lower() == 'excluir':
-                        list_date.remove(selected_task)
-                        print(f"Tarefa '{selected_task[1]}' excluída com sucesso.")
+                        task_processing = selected_task[2]
+                        processing_node = self.processing_data_to_do(task_processing)
+                        response = self.delete_to_do(processing_node)
+                        if response.status_code == 200:
+                            print('Tarefa excluída com sucesso')
+
                     else:
                         print("Opção inválida. Escolha 1 para editar ou 2 para excluir.")
                 else:
@@ -207,7 +222,6 @@ class Toolbox():
                 if date == 'q':
                     self.toolbox()
                 name = input('Digite o nome: ')
-                print(name)
                 if name == 'q':
                     self.toolbox()
                 task = input('Digite a tarefa: ')
@@ -251,8 +265,8 @@ class Toolbox():
             else:
                 print('Opção inválida!')
 
-url_firebase = 'SUA CONTA DO GOOGLE FIREBASE'
-waetherbit_key = 'SUA KEY DO WAETHERBIT'
+url_firebase = 'https://to-do-a207f-default-rtdb.firebaseio.com/.json'
+waetherbit_key = 'fdd549e720304f97bc8416ce7d75d41d'
 
 toolbox = Toolbox(url_firebase, waetherbit_key)
 main = toolbox.toolbox()
