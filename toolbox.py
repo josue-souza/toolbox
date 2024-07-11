@@ -265,8 +265,8 @@ class Toolbox():
             else:
                 print('Opção inválida!')
 
-url_firebase = 'https://to-do-a207f-default-rtdb.firebaseio.com/.json'
-waetherbit_key = 'fdd549e720304f97bc8416ce7d75d41d'
+url_firebase = '##########'
+waetherbit_key = '##########'
 
 toolbox = Toolbox(url_firebase, waetherbit_key)
 main = toolbox.toolbox()
